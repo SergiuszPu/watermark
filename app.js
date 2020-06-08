@@ -46,7 +46,22 @@ const startApp = async () => {
   // if answer is no, just quit the app
   if(!answer.start) process.exit();
 
+  if(!answer.start) process.exit();
 
+  const returnTextWatermark = () => {
+		if (fs.existsSync('./img/' + options.inputImage)) {
+			return addTextWatermarkToImage('./img/' + options.inputImage, './output_files/' + prepareOutputFilename(options.inputImage), options.watermarkText);
+		}
+		console.log('Hello, please put your image in "img" folder');
+	};
+
+	const returnLogoWatermark = () => {
+		if (fs.existsSync('./img/' + options.inputImage) && fs.existsSync('./img/' + options.watermarkImage)) {
+			return addImageWatermarkToImage('./img/' + options.inputImage, './output_files/' + prepareOutputFilename(options.inputImage), './img/' + options.watermarkImage);
+		}
+		console.log('Hello, please put your image in "img" folder');
+  };
+  
   // ask about input file and watermark type
   const options = await inquirer.prompt([{
     name: 'inputImage',
@@ -59,9 +74,9 @@ const startApp = async () => {
     choices: ['Text watermark', 'Image watermark'],
   }]);
 
-  if (fs.existsSync('./img/' + options.inputImage)) {
-    console.log('Something went wrong... Try again');
-  }
+  // if (fs.existsSync('./img/' + options.inputImage)) {
+  //   console.log('Something went wrong... Try again');
+  // }
 
   if(options.watermarkType === 'Text watermark') {
     const text = await inquirer.prompt([{
@@ -70,7 +85,8 @@ const startApp = async () => {
       message: 'Type your watermark text:',
     }]);
     options.watermarkText = text.value;
-    addTextWatermarkToImage('./img/' + options.inputImage, './output_file/' + prepareOutputFilename(options.inputImage), options.watermarkText);
+    await returnTextWatermark();
+    // addTextWatermarkToImage('./img/' + options.inputImage, './output_file/' + prepareOutputFilename(options.inputImage), options.watermarkText);
   }
   else {
     const image = await inquirer.prompt([{
@@ -80,7 +96,8 @@ const startApp = async () => {
       default: 'logo.png',
     }]);
     options.watermarkImage = image.filename;
-    addImageWatermarkToImage('./img/' + options.inputImage, './output_file/' + prepareOutputFilename(options.watermarkImage),'./img/' +  options.watermarkImage);
+    return returnLogoWatermark();
+    // addImageWatermarkToImage('./img/' + options.inputImage, './output_file/' + prepareOutputFilename(options.watermarkImage),'./img/' +  options.watermarkImage);
   }
 }
 
